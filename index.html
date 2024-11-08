@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS S3 Storage Recommendation Tool</title>
+    <style>
+        /* Basic Reset and Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        
+        /* Container Styling */
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header Styling */
+        h1 {
+            text-align: center;
+            color: #2a61d4;
+            margin-bottom: 5px;
+            font-size: 1.8em;
+        }
+
+        /* Description */
+        p.description {
+            text-align: center;
+            color: #555;
+            font-size: 1.1em;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Question Styling */
+        h2 {
+            font-size: 1.2em;
+            color: #333;
+            margin-top: 0;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .question {
+            margin: 20px 0;
+            text-align: center;
+            padding: 15px 0;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Button Styling */
+        .button {
+            padding: 12px 24px;
+            margin: 10px 5px;
+            background-color: #e3e6ed;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            position: relative;
+            transition: background-color 0.3s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .button:hover {
+            background-color: #d0d4de;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .button.selected {
+            background-color: #2a61d4;
+            color: #fff;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Tooltip Styling */
+        .button .tooltip {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 4px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .button:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Analyze Button */
+        .analyze-button {
+            background-color: #28a745;
+            color: #fff;
+            font-size: 1.1em;
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .analyze-button:hover {
+            background-color: #218838;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-content h2 {
+            color: #2a61d4;
+        }
+
+        .cta-button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .cta-button:hover {
+            background-color: #0056b3;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close-button:hover {
+            color: #333;
+        }
+
+        /* Persistent Footer Banner */
+        .footer-banner {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-size: 1em;
+            box-shadow: 0px -2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-banner a {
+            color: #ffc107;
+            text-decoration: underline;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AWS S3 Storage Recommendation Tool</h1>
+        <p class="description">
+            Get the best AWS S3 storage option based on your data access needs and cost priorities.
+        </p>
+
+        <!-- Multi-Asset Selection -->
+        <div id="dataTypeSelection" class="question">
+            <h2>Select Data Type for this asset</h2>
+            <button class="button" onclick="selectDataType(this, 'raw')">Raw Data
+                <span class="tooltip">Unprocessed original data.</span>
+            </button>
+            <button class="button" onclick="selectDataType(this, 'processed')">Processed Data
+                <span class="tooltip">Data that has been processed or refined.</span>
+            </button>
+            <button class="button" onclick="selectDataType(this, 'archival')">Archival Data
+                <span class="tooltip">Data stored for long-term retention.</span>
+            </button>
+        </div>
+
+        <!-- Access Frequency Question -->
+        <div id="accessFrequencyQuestion" class="question">
+            <h2>How often will you need to access this data?</h2>
+            <button class="button" onclick="selectAccessFrequency(this, 'daily')">Daily
+                <span class="tooltip">Data accessed every day.</span>
+            </button>
+            <button class="button" onclick="selectAccessFrequency(this, 'monthly')">Monthly
+                <span class="tooltip">Data accessed about once a month.</span>
+            </button>
+            <button class="button" onclick="selectAccessFrequency(this, 'rarely')">Rarely
+                <span class="tooltip">Data accessed a few times a year.</span>
+            </button>
+            <button class="button" onclick="selectAccessFrequency(this, 'archival')">Only for Archival
+                <span class="tooltip">Data accessed only in rare cases.</span>
+            </button>
+        </div>
+
+        <!-- Retrieval Speed Question -->
+        <div id="retrievalSpeedQuestion" class="question">
+            <h2>When you need to retrieve this data, how quickly do you need access?</h2>
+            <button class="button" onclick="selectRetrievalSpeed(this, 'immediate')">Immediate
+                <span class="tooltip">Access within seconds or minutes.</span>
+            </button>
+            <button class="button" onclick="selectRetrievalSpeed(this, 'hours')">Within hours
+                <span class="tooltip">Access within a few hours.</span>
+            </button>
+            <button class="button" onclick="selectRetrievalSpeed(this, 'no_urgency')">No urgency
+                <span class="tooltip">Access can take up to a day.</span>
+            </button>
+        </div>
+
+        <!-- Availability Requirement Question -->
+        <div id="availabilityQuestion" class="question">
+            <h2>Is this data critical and requires high availability, or can it be stored in a single availability zone?</h2>
+            <button class="button" onclick="selectAvailability(this, 'high')">High Availability
+                <span class="tooltip">Data stored across multiple zones.</span>
+            </button>
+            <button class="button" onclick="selectAvailability(this, 'single_zone')">Single Zone
+                <span class="tooltip">Data stored in a single zone, lower redundancy.</span>
+            </button>
+        </div>
+
+        <!-- Retention Duration Question -->
+        <div id="retentionQuestion" class="question">
+            <h2>How long do you plan to store this data?</h2>
+            <button class="button" onclick="selectRetention(this, 'short')">Less than 1 year
+                <span class="tooltip">Data retained for less than a year.</span>
+            </button>
+            <button class="button" onclick="selectRetention(this, 'medium')">1-5 years
+                <span class="tooltip">Data retained between 1 and 5 years.</span>
+            </button>
+            <button class="button" onclick="selectRetention(this, 'long')">5+ years
+                <span class="tooltip">Data retained for more than 5 years.</span>
+            </button>
+        </div>
+
+        <!-- Cost Sensitivity Question -->
+        <div id="costSensitivityQuestion" class="question">
+            <h2>Is cost a priority for you?</h2>
+            <button class="button" onclick="selectCostSensitivity(this, 'yes')">Yes
+                <span class="tooltip">Cost is an important factor.</span>
+            </button>
+            <button class="button" onclick="selectCostSensitivity(this, 'no')">No
+                <span class="tooltip">Cost is not a priority.</span>
+            </button>
+        </div>
+
+        <!-- Analyze Button -->
+        <div class="question">
+            <button class="analyze-button" onclick="analyzeData()">Analyze</button>
+        </div>
+
+        <!-- Result Modal -->
+        <div id="resultModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeModal()">&times;</span>
+                <h2>Recommended Storage Option</h2>
+                <h1><p id="recommendation"></p></h1><p>Need expert advice?<br>
+                <button class="cta-button" onclick="window.open('https://calendly.com/your-link', '_blank')">
+                    Book a Professional Consultation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Persistent Footer Banner -->
+    <div class="footer-banner">
+        Want expert guidance on AWS solutions? <a href="https://calendly.com/your-link" target="_blank">Book a consultation</a>
+    </div>
+
+    <script>
+        let dataType = '';
+        let accessFrequency = '';
+        let retrievalSpeed = '';
+        let availability = '';
+        let retention = '';
+        let costSensitivity = '';
+
+        function selectDataType(button, type) {
+            dataType = type;
+            highlightSelection(button);
+        }
+
+        function selectAccessFrequency(button, frequency) {
+            accessFrequency = frequency;
+            highlightSelection(button);
+        }
+
+        function selectRetrievalSpeed(button, speed) {
+            retrievalSpeed = speed;
+            highlightSelection(button);
+        }
+
+        function selectAvailability(button, zone) {
+            availability = zone;
+            highlightSelection(button);
+        }
+
+        function selectRetention(button, duration) {
+            retention = duration;
+            highlightSelection(button);
+        }
+
+        function selectCostSensitivity(button, sensitivity) {
+            costSensitivity = sensitivity;
+            highlightSelection(button);
+        }
+
+        function highlightSelection(button) {
+            const parent = button.parentNode;
+            Array.from(parent.children).forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+        }
+
+function analyzeData() {
+    //let recommendation = "No recomendation";  // Default recommendation
+
+    // S3 Standard: Frequently accessed data with immediate retrieval, high availability, and cost is not a priority
+    if (costSensitivity === 'no') {
+        recommendation = "S3 Standard";
+    }
+    // S3 Intelligent-Tiering: Unpredictable access patterns, immediate retrieval, and cost-sensitive
+    else if ((dataType === 'raw' || dataType === 'processed' || dataType === 'archival') &&
+             accessFrequency === 'unpredictable' &&
+             retrievalSpeed === 'immediate' &&
+             availability === 'high' &&
+             retention === 'long' &&
+             costSensitivity === 'yes') {
+        recommendation = "S3 Intelligent-Tiering";
+    }
+    // S3 Standard-IA: Infrequent access, immediate retrieval, high availability, and cost-sensitive
+    else if ((dataType === 'processed' || dataType === 'archival') &&
+             accessFrequency === 'monthly' &&
+             retrievalSpeed === 'immediate' &&
+             availability === 'high' &&
+             retention !== 'short' &&
+             costSensitivity === 'yes') {
+        recommendation = "S3 Standard-IA";
+    }
+    // S3 One Zone-IA: Infrequent access, immediate retrieval, single-zone, and cost-sensitive
+    else if ((dataType === 'processed' || dataType === 'archival') &&
+             accessFrequency === 'monthly' &&
+             retrievalSpeed === 'immediate' &&
+             availability === 'single_zone' &&
+             retention !== 'short' &&
+             costSensitivity === 'yes') {
+        recommendation = "S3 One Zone-IA";
+    }
+    // S3 Glacier Instant Retrieval: Archival data, rarely accessed, immediate retrieval, cost-sensitive
+    else if (dataType === 'archival' &&
+             accessFrequency === 'rarely' &&
+             retrievalSpeed === 'immediate' &&
+             availability === 'high' &&
+             retention !== 'short' &&
+             costSensitivity === 'yes') {
+        recommendation = "S3 Glacier Instant Retrieval";
+    }
+    // S3 Glacier Flexible Retrieval: Archival data, rarely accessed, hours retrieval, cost-sensitive
+    else if (dataType === 'archival' &&
+             accessFrequency === 'rarely' &&
+             retrievalSpeed === 'hours' &&
+             availability === 'high' &&
+             retention !== 'short' &&
+             costSensitivity === 'yes') {
+        recommendation = "S3 Glacier Flexible Retrieval";
+    }
+    // S3 Glacier Deep Archive: Archival data, rarely accessed, no urgency for retrieval, maximally cost-sensitive
+    else if (accessFrequency === 'rarely' &&
+             retrievalSpeed === 'no_urgency' &&
+             availability === 'high' &&
+             retention !== 'short' &&
+             costSensitivity === 'yes') {
+        recommendation = "S3 Glacier Deep Archive";
+    }
+
+    document.getElementById('recommendation').innerText = recommendation;
+    document.getElementById('resultModal').style.display = 'flex';
+}
+
+
+
+        function closeModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
