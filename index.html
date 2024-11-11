@@ -3,7 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWS S3 Storage Recommendation Tool</title>
+    <meta name="description" content="Discover the perfect AWS S3 storage class based on your data needs and budget. Use our easy AWS S3 Storage Recommendation Tool by Consultando." />
+    <title>Choose the Right AWS S3 Storage with Our Recommendation Tool | Consultando</title>
+    	<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AWS S3 Storage Recommendation Tool",
+      "url": "https://consultando.github.io/S3Select/",
+      "description": "Easily determine the best AWS S3 storage class for your data with this recommendation tool.",
+      "operatingSystem": "All",
+      "applicationCategory": "Utility",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>	
     <style>
         /* Basic Reset and Styling */
         body {
@@ -39,6 +56,34 @@
             font-size: 1.1em;
             margin-top: 15px;
             margin-bottom: 20px;
+        }
+        
+                /* Jump to FAQ link */
+        .jump-link {
+            text-align: center;
+            display: block;
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 20px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .cta-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #0056b3;
         }
 
         /* Question Styling */
@@ -207,37 +252,39 @@
     <div class="container">
         <h1>AWS S3 Storage Recommendation Tool</h1>
         <p class="description">
-            Get the best AWS S3 storage option based on your data access needs and cost priorities.
+        Get the best AWS S3 storage option based on your data access needs and cost priorities.
         </p>
-
+	<!-- Jump to FAQ Link -->
+        <a href="#faq-section" class="jump-link">Jump to FAQ</a>
         <!-- Multi-Asset Selection -->
         <div id="dataTypeSelection" class="question">
             <h2>Select Data Type for this asset</h2>
             <button class="button" onclick="selectDataType(this, 'raw')">Raw Data
-                <span class="tooltip">Unprocessed original data.</span>
+                <span class="tooltip">Original, unprocessed data stored for potential future analysis or backup.</span>
             </button>
             <button class="button" onclick="selectDataType(this, 'processed')">Processed Data
-                <span class="tooltip">Data that has been processed or refined.</span>
+                <span class="tooltip">Data that’s been refined or transformed, ready for storage or distribution.</span>
             </button>
             <button class="button" onclick="selectDataType(this, 'archival')">Archival Data
-                <span class="tooltip">Data stored for long-term retention.</span>
+                <span class="tooltip">Long-term storage for important data rarely accessed but kept for records.</span>
             </button>
         </div>
 
         <!-- Access Frequency Question -->
         <div id="accessFrequencyQuestion" class="question">
-            <h2>How often will you need to access this data?</h2>
+            <h2>How often will you need to access this data?
+            </h2>
             <button class="button" onclick="selectAccessFrequency(this, 'daily')">Daily
-                <span class="tooltip">Data accessed every day.</span>
+                <span class="tooltip">Data accessed daily; suitable for frequently used files or databases.</span>
             </button>
             <button class="button" onclick="selectAccessFrequency(this, 'monthly')">Monthly
-                <span class="tooltip">Data accessed about once a month.</span>
+                <span class="tooltip">Data accessed about once a month, such as monthly reports or backups.</span>
             </button>
             <button class="button" onclick="selectAccessFrequency(this, 'rarely')">Rarely
-                <span class="tooltip">Data accessed a few times a year.</span>
+                <span class="tooltip">Data accessed a few times a year, ideal for semi-archived files.</span>
             </button>
             <button class="button" onclick="selectAccessFrequency(this, 'archival')">Only for Archival
-                <span class="tooltip">Data accessed only in rare cases.</span>
+                <span class="tooltip">Data accessed only for long-term storage, rarely retrieved but essential to keep.</span>
             </button>
         </div>
 
@@ -245,13 +292,13 @@
         <div id="retrievalSpeedQuestion" class="question">
             <h2>When you need to retrieve this data, how quickly do you need access?</h2>
             <button class="button" onclick="selectRetrievalSpeed(this, 'immediate')">Immediate
-                <span class="tooltip">Access within seconds or minutes.</span>
+                <span class="tooltip">Instant access, suitable for frequently accessed or live application data.</span>
             </button>
             <button class="button" onclick="selectRetrievalSpeed(this, 'hours')">Within hours
-                <span class="tooltip">Access within a few hours.</span>
+                <span class="tooltip">Data retrieval within hours; ideal for infrequently accessed files.</span>
             </button>
             <button class="button" onclick="selectRetrievalSpeed(this, 'no_urgency')">No urgency
-                <span class="tooltip">Access can take up to a day.</span>
+                <span class="tooltip">No urgency, data can be retrieved within a day; optimal for long-term archives.</span>
             </button>
         </div>
 
@@ -259,24 +306,27 @@
         <div id="availabilityQuestion" class="question">
             <h2>Is this data critical and requires high availability, or can it be stored in a single availability zone?</h2>
             <button class="button" onclick="selectAvailability(this, 'high')">High Availability
-                <span class="tooltip">Data stored across multiple zones.</span>
+                <span class="tooltip">Data stored across multiple zones, designed to minimize downtime (allows for ~4.32 minutes of downtime per month).</span>
             </button>
-            <button class="button" onclick="selectAvailability(this, 'single_zone')">Single Zone
-                <span class="tooltip">Data stored in a single zone, lower redundancy.</span>
+            <button class="button" onclick="selectAvailability(this, 'single_zone')">Single Zone (Low Availability)
+                <span class="tooltip">Data stored in a single zone, tolerates more downtime (allows for ~3.6 hours of downtime per month).</span>
             </button>
         </div>
 
         <!-- Retention Duration Question -->
         <div id="retentionQuestion" class="question">
             <h2>How long do you plan to store this data?</h2>
-            <button class="button" onclick="selectRetention(this, 'short')">Less than 1 year
-                <span class="tooltip">Data retained for less than a year.</span>
+            <button class="button" onclick="selectRetention(this, 'short')">Short term
+                <span class="tooltip">Data stored for less than a month.</span>
             </button>
-            <button class="button" onclick="selectRetention(this, 'medium')">1-5 years
-                <span class="tooltip">Data retained between 1 and 5 years.</span>
+            <button class="button" onclick="selectRetention(this, '30_days')">30+ Days
+                <span class="tooltip">Data stored for at least one month; ideal for recent files not frequently accessed.</span>
             </button>
-            <button class="button" onclick="selectRetention(this, 'long')">5+ years
-                <span class="tooltip">Data retained for more than 5 years.</span>
+            <button class="button" onclick="selectRetention(this, '90_days')">90+ Days
+                <span class="tooltip">Data stored for at least three months; great for quarterly files or seasonal data.</span>
+            </button>
+            <button class="button" onclick="selectRetention(this, 'long')">180+ Days
+                <span class="tooltip">Data stored for at least six months; suitable for long-term data storage or archives.</span>
             </button>
         </div>
 
@@ -284,10 +334,10 @@
         <div id="costSensitivityQuestion" class="question">
             <h2>Is cost a priority for you?</h2>
             <button class="button" onclick="selectCostSensitivity(this, 'yes')">Yes
-                <span class="tooltip">Cost is an important factor.</span>
+                <span class="tooltip">Budget-conscious option, ideal if you prefer lower-cost storage solutions.</span>
             </button>
             <button class="button" onclick="selectCostSensitivity(this, 'no')">No
-                <span class="tooltip">Cost is not a priority.</span>
+                <span class="tooltip">Cost is not a priority; prioritize high availability and fast access.</span>
             </button>
         </div>
 
@@ -301,19 +351,33 @@
             <div class="modal-content">
                 <span class="close-button" onclick="closeModal()">&times;</span>
                 <h2>Recommended Storage Option</h2>
-                <h1><p id="recommendation"></p></h1><p>Need expert advice?<br>
+                <h1><p id="recommendation"></p></h1><p>Need more advice?<br>
                 <button class="cta-button" onclick="window.open('https://calendly.com/your-link', '_blank')">
-                    Book a Professional Consultation
+                    Book a Consultation
                 </button>
             </div>
         </div>
     </div>
+	<!-- FAQ Section -->
+        <div class="container" id="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            <p><strong>Which S3 storage class is best?</strong><br>
+            The best storage class depends on your access frequency, retrieval needs, and budget. Use this tool to help determine the most suitable option.</p>
 
+            <p><strong>What is the default storage class in S3?</strong><br>
+            The default storage class is S3 Standard, designed for general-purpose storage with high availability.</p>
+
+            <p><strong>Can we change the storage class of an S3 bucket?</strong><br>
+            Yes, you can change the storage class of objects in an S3 bucket, but this might incur transition charges.</p>
+
+            <p><strong>Which S3 storage class should you use for data that is infrequently accessed but must be immediately available when needed?</strong><br>
+            S3 Standard-IA (Infrequent Access) or S3 Glacier Instant Retrieval are typically best for such requirements.</p>
+        </div>
     <!-- Persistent Footer Banner -->
     <div class="footer-banner">
-        Want expert guidance on AWS solutions? <a href="https://calendly.com/your-link" target="_blank">Book a consultation</a>
+        Support those in need: Join us in making a difference by donating to the Red Cross.  <a href="https://www.icrc.org/en/donate" target="_blank">Donate now</a>
     </div>
-
+    </div>
     <script>
         let dataType = '';
         let accessFrequency = '';
@@ -358,72 +422,62 @@
             button.classList.add('selected');
         }
 
-function analyzeData() {
-    //let recommendation = "No recomendation";  // Default recommendation
+        function analyzeData() {
+            let recommendation = "It looks like you might need a hand figuring out the best storage option. I’m here to help!";  // Default recommendation
 
-    // S3 Standard: Frequently accessed data with immediate retrieval, high availability, and cost is not a priority
-    if (costSensitivity === 'no') {
-        recommendation = "S3 Standard";
-    }
-    // S3 Intelligent-Tiering: Unpredictable access patterns, immediate retrieval, and cost-sensitive
-    else if ((dataType === 'raw' || dataType === 'processed' || dataType === 'archival') &&
-             accessFrequency === 'unpredictable' &&
-             retrievalSpeed === 'immediate' &&
-             availability === 'high' &&
-             retention === 'long' &&
-             costSensitivity === 'yes') {
-        recommendation = "S3 Intelligent-Tiering";
-    }
-    // S3 Standard-IA: Infrequent access, immediate retrieval, high availability, and cost-sensitive
-    else if ((dataType === 'processed' || dataType === 'archival') &&
-             accessFrequency === 'monthly' &&
-             retrievalSpeed === 'immediate' &&
-             availability === 'high' &&
-             retention !== 'short' &&
-             costSensitivity === 'yes') {
-        recommendation = "S3 Standard-IA";
-    }
-    // S3 One Zone-IA: Infrequent access, immediate retrieval, single-zone, and cost-sensitive
-    else if ((dataType === 'processed' || dataType === 'archival') &&
-             accessFrequency === 'monthly' &&
-             retrievalSpeed === 'immediate' &&
-             availability === 'single_zone' &&
-             retention !== 'short' &&
-             costSensitivity === 'yes') {
-        recommendation = "S3 One Zone-IA";
-    }
-    // S3 Glacier Instant Retrieval: Archival data, rarely accessed, immediate retrieval, cost-sensitive
-    else if (dataType === 'archival' &&
-             accessFrequency === 'rarely' &&
-             retrievalSpeed === 'immediate' &&
-             availability === 'high' &&
-             retention !== 'short' &&
-             costSensitivity === 'yes') {
-        recommendation = "S3 Glacier Instant Retrieval";
-    }
-    // S3 Glacier Flexible Retrieval: Archival data, rarely accessed, hours retrieval, cost-sensitive
-    else if (dataType === 'archival' &&
-             accessFrequency === 'rarely' &&
-             retrievalSpeed === 'hours' &&
-             availability === 'high' &&
-             retention !== 'short' &&
-             costSensitivity === 'yes') {
-        recommendation = "S3 Glacier Flexible Retrieval";
-    }
-    // S3 Glacier Deep Archive: Archival data, rarely accessed, no urgency for retrieval, maximally cost-sensitive
-    else if (accessFrequency === 'rarely' &&
-             retrievalSpeed === 'no_urgency' &&
-             availability === 'high' &&
-             retention !== 'short' &&
-             costSensitivity === 'yes') {
-        recommendation = "S3 Glacier Deep Archive";
-    }
+            // S3 Standard: Frequently accessed data with immediate retrieval, high availability, and cost is not a priority
+            if (costSensitivity === 'no') {
+                recommendation = "S3 Standard";
+            }
+            // S3 Intelligent-Tiering: Unpredictable access patterns, immediate retrieval, long-term storage, cost-sensitive
+            else if (accessFrequency === 'daily' &&
+                     availability === 'high' &&
+                     retrievalSpeed === 'immediate' &&
+                     retention !== 'short' &&
+                     costSensitivity === 'yes') {
+                recommendation = "S3 Intelligent-Tiering";
+            }
+            // S3 Standard-IA: Infrequent access, immediate retrieval, high availability, and cost-sensitive
+            else if (accessFrequency !== 'daily' &&
+                     availability === 'high' &&
+                     retrievalSpeed === 'immediate' &&
+                     retention === '30_days' &&
+                     costSensitivity === 'yes') {
+                recommendation = "S3 Standard-IA";
+            }
+            // S3 One Zone-IA: Infrequent access, immediate retrieval, single-zone, 30-day minimum duration, cost-sensitive
+            else if (accessFrequency !== 'daily' &&
+                     availability === 'single_zone' &&
+                     retention === '30_days' &&
+                     costSensitivity === 'yes') {
+                recommendation = "S3 One Zone-IA";
+            }
+            // S3 Glacier Deep Archive: Archival data, rarely accessed, no urgency for retrieval, high availability, 180-day minimum duration
+            else if (accessFrequency === 'archival' &&
+                     retrievalSpeed === 'no_urgency' &&
+                     retention === 'long' &&
+                     costSensitivity === 'yes') {
+                recommendation = "S3 Glacier Deep Archive";
+            }
+            // S3 Glacier Instant Retrieval: Archival data, rarely accessed, immediate retrieval, high availability, 90-day minimum duration
+            else if ((accessFrequency === 'rarely' || accessFrequency === 'archival') &&
+                     retrievalSpeed === 'immediate' &&
+                     retention === '90_days' &&
+                     costSensitivity === 'yes') {
+                recommendation = "S3 Glacier Instant Retrieval";
+            }
+            // S3 Glacier Flexible Retrieval: Archival data, rarely accessed, hours retrieval, high availability, 90-day minimum duration
+            else if ((accessFrequency === 'rarely' || accessFrequency === 'archival') &&
+                     retrievalSpeed !== 'immediate' &&
+                     (retention === '90_days' || retention === 'long')&&
+                     costSensitivity === 'yes') {
+                recommendation = "S3 Glacier Flexible Retrieval";
+            }
+            else {recommendation = "S3 Intelligent-Tiering";}
 
-    document.getElementById('recommendation').innerText = recommendation;
-    document.getElementById('resultModal').style.display = 'flex';
-}
-
-
+            document.getElementById('recommendation').innerText = recommendation;
+            document.getElementById('resultModal').style.display = 'flex';
+        }
 
         function closeModal() {
             document.getElementById('resultModal').style.display = 'none';
@@ -431,4 +485,3 @@ function analyzeData() {
     </script>
 </body>
 </html>
-
